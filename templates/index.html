@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentinelAI | Credit Card Fraud Detection</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="dark-theme">
+    <div class="glow-bg-1"></div>
+    <div class="glow-bg-2"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-shield-halved logo-icon"></i>
+                <div class="logo-text">
+                    <span class="brand-name">CREDIT CARD</span>
+                    <span class="brand-sub">FRAUD RADAR</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="dashboard-tab" id="btn-tab-dashboard">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="predictor-tab" id="btn-tab-predictor">
+                    <i class="fa-solid fa-credit-card"></i>
+                    <span>Predictor</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="dot pulse-green"></span>
+                    <span class="status-label">Model: RF Active</span>
+                </div>
+                <div class="footer-project">BCA Final Year Project</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="page-title-main">Credit Card Fraud Detection</h1>
+                    <p class="subtitle">Real-time anomaly detection using machine learning models</p>
+                </div>
+                <div class="user-profile">
+                    <div class="model-badge">
+                        <i class="fa-solid fa-brain"></i>
+                        <span>Simplified Random Forest</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD -->
+            <section id="dashboard-tab" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="card-icon blue-glow">
+                            <i class="fa-solid fa-percent"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Model Accuracy</span>
+                            <h3 class="metric-value" id="metric-accuracy">--</h3>
+                            <span class="metric-sub text-green"><i class="fa-solid fa-circle-check"></i> Overall
+                                Correctness</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-icon red-glow">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Fraud Recall</span>
+                            <h3 class="metric-value" id="metric-recall">--</h3>
+                            <span class="metric-sub text-blue"><i class="fa-solid fa-info-circle"></i> Detection
+                                Sensitivity</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-icon green-glow">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">ROC AUC Score</span>
+                            <h3 class="metric-value" id="metric-auc">--</h3>
+                            <span class="metric-sub text-green"><i class="fa-solid fa-arrow-trend-up"></i> Discriminator
+                                Power</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-icon gold-glow">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Fraud F1-Score</span>
+                            <h3 class="metric-value" id="metric-f1">--</h3>
+                            <span class="metric-sub text-yellow"><i class="fa-solid fa-scale-balanced"></i>
+                                Precision-Recall Balance</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-card glass">
+                        <h3>Confusion Matrix Results</h3>
+                        <p class="chart-subtitle">Testing split breakdown (56,962 transactions)</p>
+                        <div class="chart-wrapper">
+                            <canvas id="matrixChart"></canvas>
+                        </div>
+                        <div class="matrix-legend">
+                            <div class="legend-item"><span class="legend-color tn"></span><span>True Negatives
+                                    (Genuine)</span></div>
+                            <div class="legend-item"><span class="legend-color fp"></span><span>False Positives</span>
+                            </div>
+                            <div class="legend-item"><span class="legend-color fn"></span><span>False Negatives
+                                    (Missed)</span></div>
+                            <div class="legend-item"><span class="legend-color tp"></span><span>True Positives
+                                    (Detected)</span></div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card glass">
+                        <h3>Class Imbalance Contrast</h3>
+                        <p class="chart-subtitle">Dataset ratio highlighting the rarity of fraud (0.17%)</p>
+                        <div class="chart-wrapper">
+                            <canvas id="imbalanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-row" style="margin-top: 1.5rem;">
+                    <div class="chart-card glass">
+                        <h3>Receiver Operating Characteristic (ROC) Curve</h3>
+                        <p class="chart-subtitle">True Positive Rate vs False Positive Rate (AUC: <span
+                                id="roc-auc-value" style="font-weight:600; color:var(--accent-blue);">--</span>)</p>
+                        <div class="chart-wrapper">
+                            <canvas id="rocChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card glass">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <h3>Recent Interactive Sandbox Audits</h3>
+                                <p class="chart-subtitle">History of simulations run in the Predictor tab</p>
+                            </div>
+                            <button type="button" class="btn-reset-session" id="btn-reset-session"
+                                title="Reset live dashboard statistics">
+                                <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+                            </button>
+                        </div>
+                        <div class="chart-wrapper" id="sandbox-audits-wrapper">
+                            <!-- Injected dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: PREDICTOR -->
+            <section id="predictor-tab" class="tab-content">
+                <div class="predictor-layout">
+                    <!-- Inputs Card -->
+                    <div class="predictor-card glass">
+                        <div class="predictor-header">
+                            <h2>Transaction Parameters</h2>
+                            <p>Select a pre-configured sample from the Kaggle dataset, or construct a transaction
+                                manually.</p>
+                        </div>
+
+                        <!-- Sample Loaders -->
+                        <div class="sample-loaders">
+                            <span class="loader-label">Load Test Cases:</span>
+                            <div class="button-group">
+                                <button type="button" class="btn btn-genuine" id="btn-load-genuine">
+                                    <i class="fa-solid fa-circle-check"></i> Genuine Sample
+                                </button>
+                                <button type="button" class="btn btn-fraud" id="btn-load-fraud">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Fraudulent Sample
+                                </button>
+                                <button type="button" class="btn btn-random" id="btn-load-random">
+                                    <i class="fa-solid fa-shuffle"></i> Random Sample
+                                </button>
+                            </div>
+                        </div>
+
+                        <form id="prediction-form" class="transaction-form">
+                            <!-- Ground Truth Simulation Toggler -->
+                            <div class="actual-class-selector">
+                                <span class="selector-label">Simulated Ground Truth (Actual Class):</span>
+                                <div class="pill-group">
+                                    <button type="button" class="pill-btn active" id="pill-actual-genuine">
+                                        <i class="fa-solid fa-circle-check"></i> Genuine
+                                    </button>
+                                    <button type="button" class="pill-btn" id="pill-actual-fraud">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> Fraudulent
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- High Level Features -->
+                            <div class="primary-inputs">
+                                <div class="form-group">
+                                    <label for="input-Amount">
+                                        <span>Amount ($)</span>
+                                        <i class="fa-solid fa-circle-info tooltip"
+                                            title="Transaction volume in USD"></i>
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <i class="fa-solid fa-dollar-sign"></i>
+                                        <input type="number" id="input-Amount" name="Amount" step="0.01" min="0"
+                                            value="125.00" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="input-TimeOfDay">
+                                        <span>Time of Day</span>
+                                        <i class="fa-solid fa-circle-info tooltip"
+                                            title="The hour and minute the purchase took place"></i>
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <i class="fa-solid fa-clock"></i>
+                                        <input type="time" id="input-TimeOfDay" value="10:00" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="input-Day">
+                                        <span>Cycle Period</span>
+                                        <i class="fa-solid fa-circle-info tooltip"
+                                            title="Transactions span a 48-hour cycle"></i>
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <i class="fa-solid fa-calendar-days"></i>
+                                        <select id="input-Day" class="select-field" required>
+                                            <option value="1" selected>Day 1</option>
+                                            <option value="2">Day 2</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Human-Readable Transaction Signals -->
+                            <div class="pca-features-section">
+                                <h3 class="section-mini-title">Security & Location Parameters</h3>
+                                <p class="section-mini-desc">These indicators determine anomalies in location,
+                                    frequency, device, and validation security.</p>
+                                <div class="pca-container-simple">
+
+                                    <!-- Location (V17) -->
+                                    <div class="pca-field">
+                                        <label for="input-V17">Transaction Location</label>
+                                        <select id="input-V17" required>
+                                            <option value="Home" selected>Home (Billing Address)</option>
+                                            <option value="Travel">Travel Destination</option>
+                                            <option value="Distant">Distant Outlier Location</option>
+                                            <option value="International">International High-Risk Region</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Frequency (V14) -->
+                                    <div class="pca-field">
+                                        <label for="input-V14">Purchase Frequency</label>
+                                        <select id="input-V14" required>
+                                            <option value="Standard" selected>Standard (Typical spacing)</option>
+                                            <option value="Frequent">Frequent (Multiple buys/1hr)</option>
+                                            <option value="Rapid">Rapid-Fire (Burst attempts)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Device (V16) -->
+                                    <div class="pca-field">
+                                        <label for="input-V16">Device Status</label>
+                                        <select id="input-V16" required>
+                                            <option value="Trusted" selected>Trusted Primary Device</option>
+                                            <option value="New">New Unrecognized Device</option>
+                                            <option value="Unverified">Unverified VPN/Emulator</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Card Validation (V10) -->
+                                    <div class="pca-field">
+                                        <label for="input-V10">Verification Status</label>
+                                        <select id="input-V10" required>
+                                            <option value="PIN" selected>PIN & CVV Confirmed</option>
+                                            <option value="Bypass">PIN Bypassed (Signature)</option>
+                                            <option value="Failed">Failed CVV/PIN Attempts</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Network Security (V12) -->
+                                    <div class="pca-field">
+                                        <label for="input-V12">Network Security</label>
+                                        <select id="input-V12" required>
+                                            <option value="Secure" selected>Secure Cellular/Home</option>
+                                            <option value="Public">Unsecured Public Wi-Fi</option>
+                                            <option value="Proxy">Anonymous Proxy/Tor VPN</option>
+                                        </select>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-submit" id="btn-submit-prediction">
+                                <i class="fa-solid fa-shield-halved"></i> Run Fraud Analysis
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Output Card -->
+                    <div class="result-card glass" id="result-panel">
+                        <div class="result-placeholder" id="result-placeholder">
+                            <div class="radar-scan">
+                                <div class="radar-circle"></div>
+                                <div class="radar-line"></div>
+                            </div>
+                            <h3>Awaiting Analysis</h3>
+                            <p>Fill out the transaction parameters manually or load a pre-configured sample, then click
+                                "Run Fraud Analysis" to evaluate the transaction.</p>
+                        </div>
+
+                        <!-- Prediction Outcome (Hidden initially) -->
+                        <div class="result-content hidden" id="result-content">
+                            <div class="result-header">
+                                <div class="result-badge" id="result-badge">
+                                    <i class="fa-solid fa-shield-check" id="result-badge-icon"></i>
+                                    <span id="result-badge-text">Genuine</span>
+                                </div>
+                                <span class="result-timestamp" id="result-time">Tested just now</span>
+                            </div>
+
+                            <div class="probability-score">
+                                <div class="gauge-container">
+                                    <!-- Dynamic circular progress ring -->
+                                    <svg class="progress-ring" width="160" height="160">
+                                        <circle class="progress-ring__circle-bg" stroke="#1c2536" stroke-width="12"
+                                            fill="transparent" r="70" cx="80" cy="80" />
+                                        <circle class="progress-ring__circle" stroke="#10b981" stroke-width="12"
+                                            fill="transparent" r="70" cx="80" cy="80" id="progress-indicator" />
+                                    </svg>
+                                    <div class="gauge-percentage">
+                                        <span class="value" id="probability-value">0%</span>
+                                        <span class="label">Fraud Probability</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="result-verdict-box" id="verdict-box">
+                                <h4 id="verdict-title">Transaction Verified Safe</h4>
+                                <p id="verdict-description">The machine learning model classifies this transaction as
+                                    highly likely to be legitimate. Spend behavior conforms to standard historical
+                                    profiles.</p>
+                            </div>
+
+                            <div class="result-details">
+                                <h5>Details & Signal Diagnostics</h5>
+                                <ul class="details-list">
+                                    <li>
+                                        <span class="detail-label">Amount Audited:</span>
+                                        <span class="detail-val" id="detail-amount">$0.00</span>
+                                    </li>
+                                    <li>
+                                        <span class="detail-label">Elapsed Time ID:</span>
+                                        <span class="detail-val" id="detail-time">0s</span>
+                                    </li>
+                                    <li>
+                                        <span class="detail-label">Signal Disruption:</span>
+                                        <span class="detail-val" id="detail-disruption">Low Anomaly Score</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Signal Strength Breakdown -->
+                            <div class="signal-breakdown-section" id="signal-breakdown">
+                                <h5>Anomaly Indicator Strengths</h5>
+                                <div class="breakdown-list">
+                                    <!-- Location Anomaly Bar -->
+                                    <div class="breakdown-row">
+                                        <span class="breakdown-name">Location:</span>
+                                        <div class="breakdown-track">
+                                            <div class="breakdown-bar" id="bar-location" style="width: 0%;"></div>
+                                        </div>
+                                        <span class="breakdown-pct" id="pct-location">0%</span>
+                                    </div>
+                                    <!-- Frequency Anomaly Bar -->
+                                    <div class="breakdown-row">
+                                        <span class="breakdown-name">Frequency:</span>
+                                        <div class="breakdown-track">
+                                            <div class="breakdown-bar" id="bar-frequency" style="width: 0%;"></div>
+                                        </div>
+                                        <span class="breakdown-pct" id="pct-frequency">0%</span>
+                                    </div>
+                                    <!-- Device Anomaly Bar -->
+                                    <div class="breakdown-row">
+                                        <span class="breakdown-name">Device Status:</span>
+                                        <div class="breakdown-track">
+                                            <div class="breakdown-bar" id="bar-device" style="width: 0%;"></div>
+                                        </div>
+                                        <span class="breakdown-pct" id="pct-device">0%</span>
+                                    </div>
+                                    <!-- Verification Anomaly Bar -->
+                                    <div class="breakdown-row">
+                                        <span class="breakdown-name">Verification:</span>
+                                        <div class="breakdown-track">
+                                            <div class="breakdown-bar" id="bar-verification" style="width: 0%;"></div>
+                                        </div>
+                                        <span class="breakdown-pct" id="pct-verification">0%</span>
+                                    </div>
+                                    <!-- Network Anomaly Bar -->
+                                    <div class="breakdown-row">
+                                        <span class="breakdown-name">Network:</span>
+                                        <div class="breakdown-track">
+                                            <div class="breakdown-bar" id="bar-network" style="width: 0%;"></div>
+                                        </div>
+                                        <span class="breakdown-pct" id="pct-network">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+        </main>
+    </div>
+
+    <!-- Main Logic Script -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
